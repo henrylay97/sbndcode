@@ -106,7 +106,6 @@
       <tool type = "LArGlobalAsymmetryFeature"/>
       <tool type = "LArShowerAsymmetryFeature"/>
       <tool type = "LArRPhiFeature"/>
-      <tool type = "LArEnergyDepositionAsymmetryFeature"/>
     </FeatureTools>
     <WriteEventTree>true</WriteEventTree>
     <EventOutputFileName>testout.root</EventOutputFileName>
