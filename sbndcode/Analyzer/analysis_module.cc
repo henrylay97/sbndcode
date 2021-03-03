@@ -150,7 +150,8 @@ private:
   std::vector<int> CCNC, mode, interactionType, target, hitNuc, hitQuark;
   std::vector<bool> nuMu, nuE, nuMuBar, nuEBar;
   std::vector<float> W, X, Y, qSquared, pt, theta, nuEn, leptonP,
-    trueVT, trueVX, trueVY, trueVZ, nuSurvival, nuLoss, cosContam, xCorrection;
+    trueVT, trueVX, trueVY, trueVZ, nuSurvival, nuLoss, cosContam, xCorrection,
+    nuPx, nuPy, nuPz;
   std::map<int,int> MCPDGMap, hitsMap;
 
   std::vector<int> mc_trackID, mc_statusCode, mc_PDG, mc_mother, mc_nDaughters,
@@ -248,6 +249,9 @@ analysis::analysis(fhicl::ParameterSet const& p)
   fEventTree->Branch("trueVX",&trueVX);
   fEventTree->Branch("trueVY",&trueVY);
   fEventTree->Branch("trueVZ",&trueVZ);
+  fEventTree->Branch("nuPx",&nuPx);
+  fEventTree->Branch("nuPy",&nuPy);
+  fEventTree->Branch("nuPz",&nuPz);
   fEventTree->Branch("nuSurvival",&nuSurvival);
   fEventTree->Branch("nuLoss",&nuLoss);
   fEventTree->Branch("cosContam",&cosContam);
@@ -386,27 +390,11 @@ void analysis::SimulationProcessor(art::Event const &e)
       
       detinfo::DetectorPropertiesData propD = art::ServiceHandle<detinfo::DetectorPropertiesService>()->DataFor(e);
       util::GeometryUtilities geomU = util::GeometryUtilities(*geom,clockData,propD);
-      std::cout << "GENIE time     : " << clockData.G4ToElecTime(neutrinoParticle.T()) <<  std::endl;
-      std::cout << "Beam gate time : " << clockData.BeamGateTime() << std::endl;
-      std::cout << "Trigger time   : " << clockData.TriggerTime() << std::endl;
 
-      // auto planeIds = geom->PlaneIDs();
-      // for(auto pID : geom->IteratePlaneIDs()){
-      // 	std::cout << pID.toString() << std::endl;
-      // 	std::cout << clockData.TPCG4Time2Tick(neutrinoParticle.T()) << std::endl;
-      // 	std::cout << clockData.TPCG4Time2TDC(neutrinoParticle.T()) << std::endl;	
-      // 	std::cout << neutrinoParticle.Vx() << std::endl;
-      // 	std::cout << propD.ConvertTicksToX(clockData.TPCG4Time2Tick(neutrinoParticle.T())- clockData.Time2Tick(clockData.BeamGateTime()),pID) << std::endl;
-      // 	std::cout << propD.ConvertTicksToX(0,pID) << std::endl;
-      // 	std::cout << propD.ConvertTicksToX(clockData.TPCG4Time2Tick(neutrinoParticle.T())- clockData.Time2Tick(clockData.BeamGateTime()),pID) - propD.ConvertTicksToX(0,pID) << std::endl;
-      // }
-      std::cout << "Drift Velocity: " << propD.DriftVelocity() << std::endl;
       for(auto pID : geom->IteratePlaneIDs()){
 	xCorrection.push_back( propD.ConvertTicksToX(clockData.TPCG4Time2Tick(neutrinoParticle.T())- clockData.Time2Tick(clockData.BeamGateTime()),pID) - propD.ConvertTicksToX(0,pID) );
 	break;
       }
-      std::cout << "xCorr: " << xCorrection.back() << std::endl;
-
       CCNC.push_back(neutrino.CCNC());
       mode.push_back(neutrino.Mode());
       interactionType.push_back(neutrino.InteractionType());
@@ -439,6 +427,9 @@ void analysis::SimulationProcessor(art::Event const &e)
       trueVX.push_back(neutrinoParticle.Vx());
       trueVY.push_back(neutrinoParticle.Vy());
       trueVZ.push_back(neutrinoParticle.Vz());
+      nuPx.push_back(neutrinoParticle.Px());
+      nuPy.push_back(neutrinoParticle.Py());
+      nuPz.push_back(neutrinoParticle.Pz());
 
     }
   
@@ -447,7 +438,6 @@ void analysis::SimulationProcessor(art::Event const &e)
     
     for(unsigned int part_i = 0; part_i < particles.size(); ++part_i) {
       const art::Ptr<simb::MCParticle> particle = particles[part_i];
-      if(particle->Mother() ==0) std::cout << "LArG4 time     : " << clockData.G4ToElecTime(particle->T()) <<  std::endl;
       mcNuMap[particle->TrackId()] = truthNeutrino->GetNeutrino().Nu().TrackId();
       MCParticleProcessor(e,particle,isCosmic);
     }
@@ -630,8 +620,6 @@ void analysis::TrackProcessor(art::Event const &e,
     if(pfp->Parent() == PrimaryPFPCodes[i]) isPrimary = true;
   }
   tr_isPrimary.push_back(isPrimary);
-  // if(isPrimary) std::cout << "Hit time: " << trackHits[0]->PeakTime() << std::endl;
-
   tr_x0.push_back(track->Start().X());
   tr_y0.push_back(track->Start().Y());
   tr_z0.push_back(track->Start().Z());
@@ -1144,32 +1132,6 @@ float analysis::StdDevScatter(art::Ptr<recob::Track> const &track, const float &
 
 void analysis::TestingPlace(art::Event const& e) 
 {
-  art::FindManyP<recob::Track> pfpTrackAssoc(eHandlePFPs,e,fTrackModuleLabel);
-  art::FindManyP<recob::Shower> pfpShowerAssoc(eHandlePFPs,e,fShowerModuleLabel);
-
-  for(unsigned int i = 0; i < eHandlePFPs->size(); ++i){
-    art::Ptr<recob::PFParticle> pfp(eHandlePFPs,i);
-    if(pfp->PdgCode() == 13){
-      std::vector<art::Ptr<recob::Track> > tracks = pfpTrackAssoc.at(pfp.key());
-      if(tracks.size() != 1) continue;
-      art::Ptr<recob::Track> track = tracks[0];
-
-      int n = track->NumberTrajectoryPoints();
-      TGraph2D *g = new TGraph2D(n);
-
-      for(int j = 0; j < n; ++j){
-	float x = track->LocationAtPoint(j).X();
-	float y = track->LocationAtPoint(j).Y();
-	float z = track->LocationAtPoint(j).Z();
-	g->SetPoint(j,x,y,z);
-      }
-      TCanvas *c = new TCanvas("c","c");
-      c->cd();
-      g->Draw();
-      sleep(10);
-      delete c;
-    }
-  }
 }
 
 void analysis::ClearData()
@@ -1184,6 +1146,7 @@ void analysis::ClearData()
   W.clear(); X.clear(); Y.clear(); qSquared.clear(); pt.clear(); theta.clear(); 
   nuEn.clear(); leptonP.clear(); trueVT.clear(); trueVX.clear(); trueVY.clear(); trueVZ.clear(); 
   nuSurvival.clear(); nuLoss.clear(); cosContam.clear(); xCorrection.clear();
+  nuPx.clear(); nuPy.clear(); nuPz.clear(); 
 
   mc_trackID.clear(); mc_statusCode.clear(); mc_PDG.clear(); mc_mother.clear(); 
   mc_nDaughters.clear(); mc_nTrajectoryPoints.clear(); mc_nuID.clear();
@@ -1237,8 +1200,6 @@ void analysis::analyze(art::Event const& e)
   e.getByLabel(fSliceModuleLabel,eHandleSlices);
 
   clockData = art::ServiceHandle<detinfo::DetectorClocksService>()->DataFor(e);
-  //  propData = art::ServiceHandle<detinfo::DetectorPropertiesService>()->DataFor(e);
-
 
   ClearData();
   SetupMaps(e);
