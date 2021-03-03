@@ -20,6 +20,7 @@ add_subdirectory(CosmicId)
 add_subdirectory(ShowerAna)
 add_subdirectory(Analyzer)
 add_subdirectory(RecoEffCI)
+add_subdirectory(VertexEventDisplay)
 
 # subdirectory for gallery stuff
 add_subdirectory(gallery)
