@@ -1,0 +1,72 @@
+#
+# File:    anatree_sbnd.fcl
+# Purpose: Write generated and reconstructed information in a ROOT tree
+# 
+# Changes:
+# 20160719 (petrillo@fnal.gov)
+#   restyled and updated service configuration
+#
+#
+
+#
+# service configuration
+#
+#include "simulationservices_sbnd.fcl"
+#include "backtrackerservice.fcl"
+#include "particleinventoryservice.fcl"
+
+#
+# algorithm configuration
+#
+#include "analysistreemodule.fcl"
+#include "rootoutput_sbnd.fcl"
+#include "showerfindermodules_sbnd.fcl"
+##include "3drift_services_sbnd.fcl"
+
+process_name: AnaTree
+
+services:
+{
+FileCatalogMetadata: @local::sbnd_file_catalog_mc
+  # this is the real output file
+  # DBrailsf 09/03/18 Use the standard outputfile naming for anatree
+  TFileService: { fileName: @local::sbnd_rootoutput.fileName }
+                @table::sbnd_services
+  ParticleInventoryService: @local::standard_particleinventoryservice
+  BackTrackerService:  @local::standard_backtrackerservice
+}
+
+source: {
+  module_type: RootInput
+}
+
+physics:
+{
+  producers:{}
+  filters:  {} 
+  analyzers:{
+    
+  vertexEVD: {
+    module_type: "vertexEVD"
+    NuGenModuleLabel:		"generator"
+    CosmicGenModuleLabel:     	"corsika"
+    LArGeantModuleLabel:      	"largeant"
+    TrackModuleLabel:         	"pandoraTrack"
+    ShowerModuleLabel:        	"pandoraShower"
+    PFParticleModuleLabel:    	"pandora"
+    VertexModuleLabel:        	"pandora"
+    CalorimetryModuleLabel:   	"pandoraCalo"
+    ParticleIDModuleLabel:    	"pandoraPid"
+    POTModuleLabel:           	"generator"
+    HitsModuleLabel:          	"linecluster"
+    ClusterModuleLabel:	      	"linecluster"
+    SpacePointModuleLabel:    	"pandora"
+    SliceModuleLabel:    	"pandora"
+    ProcessCosmics: 		false
+  }    
+ } # analyzers
+ 
+ ana:  [ vertexEVD ] 
+ end_paths:     [ ana ] 
+    
+} # physics
