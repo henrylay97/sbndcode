@@ -106,7 +106,13 @@
       <tool type = "LArGlobalAsymmetryFeature"/>
       <tool type = "LArShowerAsymmetryFeature"/>
       <tool type = "LArRPhiFeature"/>
+      <tool type = "LArEnergyDepositionAsymmetryFeature"/>
     </FeatureTools>
+    <WriteEventTree>true</WriteEventTree>
+    <EventOutputFileName>testout.root</EventOutputFileName>
+    <WriteVertexTree>true</WriteVertexTree>
+    <VertexOutputFileName>testout.root</VertexOutputFileName>
+    <MCParticleListName>Input</MCParticleListName>
   </algorithm>
   <algorithm type = "LArCutClusterCharacterisation">
     <InputClusterListNames>ClustersU ClustersV ClustersW</InputClusterListNames>
