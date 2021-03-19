@@ -107,11 +107,21 @@
       <tool type = "LArRPhiFeature"/>
       <tool type = "LArEnergyDepositionAsymmetryFeature"/>
       <tool type = "LArEnergyDepositionSmoothAsymmetryFeature"/>
-      <tool type = "LArEnergyDepositionWideAsymmetryFeature"/>
+      <tool type = "LArEnergyDepositionAsymmetryAllClustersFeature"/>
+      <tool type = "LArEnergyDepositionSmoothAsymmetryAllClustersFeature"/>
+      <tool type = "LArEnergyDepositionAsymmetryMostClustersFeature"/>
+      <tool type = "LArEnergyDepositionSmoothAsymmetryMostClustersFeature"/>
       <tool type = "LArEnergyDepositionDeviationFeature"/>
+      <tool type = "LArEnergyDepositionDeviationAllClustersFeature"/>
+      <tool type = "LArEnergyDepositionDeviationMostClustersFeature"/>
       <tool type = "LArGlobalSmoothAsymmetryFeature"/>
-      <tool type = "LArGlobalWideAsymmetryFeature"/>
+      <tool type = "LArGlobalAsymmetryAllClustersFeature"/>
+      <tool type = "LArGlobalSmoothAsymmetryAllClustersFeature"/>
+      <tool type = "LArGlobalAsymmetryMostClustersFeature"/>
+      <tool type = "LArGlobalSmoothAsymmetryMostClustersFeature"/>
       <tool type = "LArBraggPeakFinderFeature"/>
+      <tool type = "LArBraggPeakFinderAllClustersFeature"/>
+      <tool type = "LArBraggPeakFinderMostClustersFeature"/>
     </FeatureTools>
     <WriteEventTree>true</WriteEventTree>
     <EventOutputFileName>testout.root</EventOutputFileName>
