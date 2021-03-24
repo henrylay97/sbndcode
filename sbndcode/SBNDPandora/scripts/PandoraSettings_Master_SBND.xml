@@ -46,8 +46,6 @@
   </algorithm>
 
   <algorithm type = "LArVisualMonitoring">
-    <MCParticleListNames>Input</MCParticleListNames>
-    <ShowCurrentMCParticles>true</ShowCurrentMCParticles>
     <ShowCurrentPfos>true</ShowCurrentPfos>
     <ShowCurrentVertices>true</ShowCurrentVertices>
     <ShowDetector>false</ShowDetector>
