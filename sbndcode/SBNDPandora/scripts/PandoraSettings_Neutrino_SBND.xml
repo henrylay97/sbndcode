@@ -122,6 +122,8 @@
       <tool type = "LArBraggPeakFinderFeature"/>
       <tool type = "LArBraggPeakFinderAllClustersFeature"/>
       <tool type = "LArBraggPeakFinderMostClustersFeature"/>
+      <tool type = "LArShowerSmoothAsymmetryFeature"/>
+      <tool type = "LArLocalSmoothAsymmetryFeature"/>
     </FeatureTools>
     <WriteEventTree>true</WriteEventTree>
     <EventOutputFileName>testout.root</EventOutputFileName>
