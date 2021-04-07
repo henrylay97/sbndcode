@@ -129,6 +129,7 @@
     <VertexOutputFileName>testout.root</VertexOutputFileName>
     <MCParticleListName>Input</MCParticleListName>
     <TrainingSetMode>true</TrainingSetMode>
+    <AllowClassifyDuringTraining>false</AllowClassifyDuringTraining>
     <TrainingOutputFileRegion>training_file_region</TrainingOutputFileRegion>
     <TrainingOutputFileVertex>training_file_vertex</TrainingOutputFileVertex>
     <CaloHitListName>CaloHitList2D</CaloHitListName>
