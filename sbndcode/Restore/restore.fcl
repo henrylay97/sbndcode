@@ -1,0 +1,21 @@
+process_name: Restore
+
+source: {
+  module_type: RootInput
+}
+
+physics:
+{
+  producers:{}
+  filters:  {} 
+  analyzers:{
+    
+  restore:{
+    module_type: "Restorer"
+  }    
+ } # analyzers
+ 
+ ana:   [ restore ] 
+ end_paths: [ ana ] 
+    
+} # physics
