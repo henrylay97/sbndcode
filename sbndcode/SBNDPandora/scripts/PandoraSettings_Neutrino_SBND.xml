@@ -96,7 +96,7 @@
     <InputClusterListNames>ClustersU ClustersV ClustersW</InputClusterListNames>
     <OutputVertexListName>NeutrinoVertices3D</OutputVertexListName>
     <ReplaceCurrentVertexList>true</ReplaceCurrentVertexList>
-    <MvaFileName>PandoraMVAs/PandoraBdt_v08_33_00_SBND.xml</MvaFileName>
+    <MvaFileName>PandoraBdt_v08_33_00_SBND_mine.xml</MvaFileName>
     <RegionMvaName>VertexBDTRegion</RegionMvaName>
     <VertexMvaName>VertexBDTVertex</VertexMvaName>
     <FeatureTools>
@@ -105,7 +105,7 @@
       <tool type = "LArGlobalAsymmetryFeature"/>
       <tool type = "LArShowerAsymmetryFeature"/>
       <tool type = "LArRPhiFeature"/>
-      <tool type = "LArEnergyDepositionAsymmetryFeature"/>
+<!--      <tool type = "LArEnergyDepositionAsymmetryFeature"/>
       <tool type = "LArEnergyDepositionSmoothAsymmetryFeature"/>
       <tool type = "LArEnergyDepositionAsymmetryAllClustersFeature"/>
       <tool type = "LArEnergyDepositionSmoothAsymmetryAllClustersFeature"/>
@@ -123,12 +123,10 @@
       <tool type = "LArBraggPeakFinderAllClustersFeature"/>
       <tool type = "LArBraggPeakFinderMostClustersFeature"/>
       <tool type = "LArShowerSmoothAsymmetryFeature"/>
-      <tool type = "LArLocalSmoothAsymmetryFeature"/>
+      <tool type = "LArLocalSmoothAsymmetryFeature"/> -->
     </FeatureTools>
-    <WriteEventTree>true</WriteEventTree>
-    <EventOutputFileName>testout.root</EventOutputFileName>
-    <WriteVertexTree>true</WriteVertexTree>
-    <VertexOutputFileName>testout.root</VertexOutputFileName>
+    <WriteEventTree>false</WriteEventTree>
+    <WriteVertexTree>false</WriteVertexTree>
     <MCParticleListName>Input</MCParticleListName>
   </algorithm>
   <algorithm type = "LArCutClusterCharacterisation">
