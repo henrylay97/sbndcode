@@ -15,14 +15,14 @@ echo -e "\nWorking Directory: ${WORK_DIR}"
 
 declare x=$@
 
-    while :
-    do
-      case "x$1" in
-	  x--refdir)               REF_DIR="${2}";                         shift; shift;;
-	  x--update-ref-files)     UPDATE_REF_FILE_ON=1;                   shift;;
-	  x)                                                               break;;
-      esac
-    done
+while :
+do
+    case "x$1" in
+	x--refdir)               REF_DIR="${2}";                         shift; shift;;
+	x--update-ref-files)     UPDATE_REF_FILE_ON=1;                   shift;;
+	x)                                                               break;;
+    esac
+done
 
 
 ################################################
