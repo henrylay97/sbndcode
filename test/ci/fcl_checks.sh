@@ -84,14 +84,14 @@ do
     stat=$?
 
     if [[ $stat -ne 0 && $stat -ne 1 ]]; then
-	echo "Error parsing ${fcl} --- Exited with status ${stat}"
-	echo "==================================================================================================================================="
-	echo "$larerr"
-	echo "==================================================================================================================================="
-	let exit_code_parsing=201
-	continue
+        echo "Error parsing ${fcl} --- Exited with status ${stat}"
+        echo "==================================================================================================================================="
+        echo "$larerr"
+        echo "==================================================================================================================================="
+        let exit_code_parsing=201
+        continue
     else
-	echo "Successful parsing of ${fcl} --- Exited with status ${stat}"
+        echo "Successful parsing of ${fcl} --- Exited with status ${stat}"
     fi
 
     ############################################
@@ -99,13 +99,13 @@ do
     ############################################
 
     if [[ ${UPDATE_REF_FILE_ON} -gt 0 ]]; then
-	echo "Removing ${REF_DIR}/${fcl%.fcl}_fhicl_dump.out"
-	ifdh rm ${REF_DIR}/${fcl%.fcl}_fhicl_dump.out
-	echo "Copying: ${fclout} to ${REF_DIR}/old/${fcl%.fcl}_fhicl_dump_${datestamp}.out"
-	ifdh cp ${fclout} ${REF_DIR}/old/${fcl%.fcl}_fhicl_dump_${datestamp}.out
-	echo "Copying: ${fclout} to ${REF_DIR}/${fcl%.fcl}_fhicl_dump.out"
-	ifdh cp ${fclout} ${REF_DIR}/${fcl%.fcl}_fhicl_dump.out
-	continue
+        echo "Removing ${REF_DIR}/${fcl%.fcl}_fhicl_dump.out"
+        ifdh rm ${REF_DIR}/${fcl%.fcl}_fhicl_dump.out
+        echo "Copying: ${fclout} to ${REF_DIR}/old/${fcl%.fcl}_fhicl_dump_${datestamp}.out"
+        ifdh cp ${fclout} ${REF_DIR}/old/${fcl%.fcl}_fhicl_dump_${datestamp}.out
+        echo "Copying: ${fclout} to ${REF_DIR}/${fcl%.fcl}_fhicl_dump.out"
+        ifdh cp ${fclout} ${REF_DIR}/${fcl%.fcl}_fhicl_dump.out
+        continue
     fi
 
     ###############################################################################
@@ -115,13 +115,13 @@ do
     fcl_diff=$(diff ${ACCESS_REF_DIR}/${fcl%.fcl}_fhicl_dump.out ${fclout})
 
     if [[ -n $fcl_diff ]]; then
-	echo "Non-zero diff from file: ${fcl}"
-	echo "==================================================================================================================================="
-	echo "$fcl_diff"
-	echo "==================================================================================================================================="
-	let exit_code_dump=201
+        echo "Non-zero diff from file: ${fcl}"
+        echo "==================================================================================================================================="
+        echo "$fcl_diff"
+        echo "==================================================================================================================================="
+        let exit_code_dump=201
     else
-	echo "Zero diff from file: ${fcl}"
+        echo "Zero diff from file: ${fcl}"
     fi
     echo
 done
