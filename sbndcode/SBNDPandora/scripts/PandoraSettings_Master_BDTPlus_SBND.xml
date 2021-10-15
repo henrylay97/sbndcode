@@ -1,6 +1,6 @@
 <pandora>
   <!-- GLOBAL SETTINGS -->
-  <IsMonitoringEnabled>true</IsMonitoringEnabled>
+  <IsMonitoringEnabled>false</IsMonitoringEnabled>
   <ShouldDisplayAlgorithmInfo>false</ShouldDisplayAlgorithmInfo>
   <SingleHitTypeClusteringMode>true</SingleHitTypeClusteringMode>
 
@@ -19,7 +19,7 @@
 
   <algorithm type = "LArMaster">
     <CRSettingsFile>PandoraSettings_Cosmic_SBND.xml</CRSettingsFile>
-    <NuSettingsFile>PandoraSettings_Neutrino_Refined_SBND.xml</NuSettingsFile>
+    <NuSettingsFile>PandoraSettings_Neutrino_BDTPlus_SBND.xml</NuSettingsFile>
     <SlicingSettingsFile>PandoraSettings_Slicing_Standard.xml</SlicingSettingsFile>
     <StitchingTools>
       <tool type = "LArStitchingCosmicRayMerging"><ThreeDStitchingMode>true</ThreeDStitchingMode></tool>

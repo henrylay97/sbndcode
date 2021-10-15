@@ -129,6 +129,27 @@ physics:
   pandoraCalo:         @local::sbnd_calomc
   pandoraPid:          @local::sbnd_chi2pid
 
+  ### pandoraU
+  pandoraU:             @local::sbnd_pandora
+  pandoraUTrack:        @local::sbnd_pandoraTrackCreation
+  pandoraUShower:       @local::sbnd_incremental_pandoraModularShowerCreation
+  pandoraUCalo:         @local::sbnd_calomc
+  pandoraUPid:          @local::sbnd_chi2pid
+
+  ### pandoraR
+  pandoraR:             @local::sbnd_pandora
+  pandoraRTrack:        @local::sbnd_pandoraTrackCreation
+  pandoraRShower:       @local::sbnd_incremental_pandoraModularShowerCreation
+  pandoraRCalo:         @local::sbnd_calomc
+  pandoraRPid:          @local::sbnd_chi2pid
+
+  ### pandoraB
+  pandoraB:             @local::sbnd_pandora
+  pandoraBTrack:        @local::sbnd_pandoraTrackCreation
+  pandoraBShower:       @local::sbnd_incremental_pandoraModularShowerCreation
+  pandoraBCalo:         @local::sbnd_calomc
+  pandoraBPid:          @local::sbnd_chi2pid
+
   pandoraSCECalo:      @local::sbnd_gnewcalomc
   pandoraSCEPid:       @local::sbnd_chi2pid
 
@@ -200,12 +221,28 @@ physics:
   #       , pmatrackcalo
   #       , pmatrackpid
   #        , emshower
-         , crthit
+  #       , crthit
    #      , crttzero
-         , crttrack
-         , crthitt0
-         , crttrackt0
-         , fmatch
+  #       , crttrack
+  #       , crthitt0
+  #       , crttrackt0
+  #       , fmatch
+ ]
+
+ reco2U: [ rns
+          , pandoraU, pandoraUTrack, pandoraUShower
+          , pandoraUCalo, pandoraUPid
+ ]
+
+
+ reco2R: [ rns
+          , pandoraR, pandoraRTrack, pandoraRShower
+          , pandoraRCalo, pandoraRPid
+ ]
+
+ reco2B: [ rns
+          , pandoraB, pandoraBTrack, pandoraBShower
+          , pandoraBCalo, pandoraBPid
  ]
 
  # The new flashmatching will eventually be part of reco2, but for now
@@ -254,6 +291,11 @@ physics.fullreco: [ @sequence::physics.reco1,
                     opt0finder]
 physics.fullreco_noflashmatch: [ @sequence::physics.reco1,
                                  @sequence::physics.reco2]
+physics.all_reco: [ @sequence::physics.reco1,
+		    @sequence::physics.reco2,
+		    @sequence::physics.reco2U,
+		    @sequence::physics.reco2R,
+		    @sequence::physics.reco2B]
 
 physics.trigger_paths: [ fullreco ]
 
@@ -290,6 +332,32 @@ physics.producers.pandoraCalo.TrackModuleLabel:                  "pandoraTrack"
 physics.producers.pandoraCalo.SpacePointModuleLabel:             "pandora"
 physics.producers.pandoraPid.TrackModuleLabel:                   "pandoraTrack"
 physics.producers.pandoraPid.CalorimetryModuleLabel:             "pandoraCalo"
+
+physics.producers.pandoraUTrack.PFParticleLabel:                  "pandoraU"
+physics.producers.pandoraUShower.PFParticleLabel:                 "pandoraU"
+
+physics.producers.pandoraRTrack.PFParticleLabel:                  "pandoraR"
+physics.producers.pandoraRShower.PFParticleLabel:                 "pandoraR"
+
+physics.producers.pandoraBTrack.PFParticleLabel:                  "pandoraB"
+physics.producers.pandoraBShower.PFParticleLabel:                 "pandoraB"
+
+
+
+physics.producers.pandoraUCalo.TrackModuleLabel:                  "pandoraUTrack"
+physics.producers.pandoraUCalo.SpacePointModuleLabel:             "pandoraU"
+physics.producers.pandoraUPid.TrackModuleLabel:                   "pandoraUTrack"
+physics.producers.pandoraUPid.CalorimetryModuleLabel:             "pandoraUCalo"
+
+physics.producers.pandoraRCalo.TrackModuleLabel:                  "pandoraRTrack"
+physics.producers.pandoraRCalo.SpacePointModuleLabel:             "pandoraR"
+physics.producers.pandoraRPid.TrackModuleLabel:                   "pandoraRTrack"
+physics.producers.pandoraRPid.CalorimetryModuleLabel:             "pandoraRCalo"
+
+physics.producers.pandoraBCalo.TrackModuleLabel:                  "pandoraBTrack"
+physics.producers.pandoraBCalo.SpacePointModuleLabel:             "pandoraB"
+physics.producers.pandoraBPid.TrackModuleLabel:                   "pandoraBTrack"
+physics.producers.pandoraBPid.CalorimetryModuleLabel:             "pandoraBCalo"
 
 physics.producers.pandoraSCECalo.TrackModuleLabel:               "pandoraSCETrack"
 physics.producers.pandoraSCECalo.FieldDistortion:                true
