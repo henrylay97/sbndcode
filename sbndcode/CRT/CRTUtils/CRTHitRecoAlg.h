@@ -54,6 +54,7 @@ namespace detinfo {
 // ROOT
 #include "TVector3.h"
 #include "TGeoManager.h"
+#include "TTree.h"
 
 
 namespace sbnd{
@@ -121,7 +122,10 @@ namespace sbnd{
 
     std::map<std::pair<std::string, unsigned>, std::vector<CRTStrip>> CreateTaggerStrips(detinfo::DetectorClocksData const& clockData,
                                                                                          detinfo::DetectorPropertiesData const& detProp,
-                                                                                         std::vector<art::Ptr<sbnd::crt::CRTData>> data);
+                                                                                         std::vector<art::Ptr<sbnd::crt::CRTData>> data,
+											 art::Handle<std::vector<sbnd::crt::CRTData>> crtListHandle,
+											 const art::Event &event,
+											 TTree *fHitTree);
 
     CRTStrip CreateCRTStrip(art::Ptr<sbnd::crt::CRTData> sipm1, art::Ptr<sbnd::crt::CRTData> sipm2, size_t ind);
 

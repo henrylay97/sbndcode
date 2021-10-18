@@ -99,6 +99,8 @@ namespace sbnd {
    
     CRTHitRecoAlg hitAlg;
 
+    TTree *fHitTree;
+
   }; // class CRTSimHitProducer
 
 
@@ -112,6 +114,9 @@ namespace sbnd {
     produces< art::Assns<sbn::crt::CRTHit , sbnd::crt::CRTData> >();
     
     reconfigure(p);
+
+    art::ServiceHandle<art::TFileService> tfs;
+    fHitTree = tfs->make<TTree>("HitTree","CRT Strip Hit Tree");
 
   } // CRTSimHitProducer()
 
@@ -149,7 +154,7 @@ namespace sbnd {
     auto const detProp = art::ServiceHandle<detinfo::DetectorPropertiesService const>()->DataFor(event, clockData);
     // Fill a vector of pairs of time and width direction for each CRT plane
     // The y crossing point of z planes and z crossing point of y planes would be constant
-    std::map<std::pair<std::string, unsigned>, std::vector<CRTStrip>> taggerStrips = hitAlg.CreateTaggerStrips(clockData, detProp, crtList);
+    std::map<std::pair<std::string, unsigned>, std::vector<CRTStrip>> taggerStrips = hitAlg.CreateTaggerStrips(clockData, detProp, crtList, crtListHandle, event, fHitTree);
 
     mf::LogInfo("CRTSimHitProducer")
       <<"Number of SiPM hits = "<<crtList.size();
