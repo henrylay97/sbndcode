@@ -131,6 +131,40 @@ namespace sbnd {
 
   void CRTSimHitProducer::beginJob()
   {
+    std::vector<std::string> tStripName;
+    std::vector<unsigned> tChannel, tPulseT0, tPulseT1, tPulseADC;
+    double tPE1, tPE2;
+    std::string tTaggerName;
+    std::vector<double> tStripTrueMin, tStripTrueMax;
+    unsigned tPlane;
+    double tHitT0, tHitX, tHitXErr, tHitPEs;
+    std::vector<double> tLimits;
+    unsigned nIDEs;
+    std::vector<double> tEntryX, tEntryY, tEntryZ, tExitX, tExitY, tExitZ;
+
+    fHitTree->Branch("StripName",&tStripName);
+    fHitTree->Branch("Channel",&tChannel);
+    fHitTree->Branch("PulseT0",&tPulseT0);
+    fHitTree->Branch("PulseT1",&tPulseT1);
+    fHitTree->Branch("PulseADC",&tPulseADC);
+    fHitTree->Branch("PE1",&tPE1);
+    fHitTree->Branch("PE2",&tPE2);
+    fHitTree->Branch("StripTrueMin",&tStripTrueMin);
+    fHitTree->Branch("StripTrueMax",&tStripTrueMax);
+    fHitTree->Branch("TaggerName",&tTaggerName);
+    fHitTree->Branch("Plane",&tPlane);
+    fHitTree->Branch("HitT0",&tHitT0);
+    fHitTree->Branch("HitX",&tHitX);
+    fHitTree->Branch("HitXErr",&tHitXErr);
+    fHitTree->Branch("HitPEs",&tHitPEs);
+    fHitTree->Branch("Limits",&tLimits);
+    fHitTree->Branch("nIDEs",&nIDEs);
+    fHitTree->Branch("EntryX",&tEntryX);
+    fHitTree->Branch("EntryY",&tEntryY);
+    fHitTree->Branch("EntryZ",&tEntryZ);
+    fHitTree->Branch("ExitX",&tExitX);
+    fHitTree->Branch("ExitY",&tExitY);
+    fHitTree->Branch("ExitZ",&tExitZ);
 
   } // CRTSimHitProducer::beginJob()
 

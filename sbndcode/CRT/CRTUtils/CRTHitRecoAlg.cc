@@ -45,34 +45,40 @@ std::map<std::pair<std::string, unsigned>, std::vector<CRTStrip>> CRTHitRecoAlg:
 
   art::FindManyP<sim::AuxDetIDE> dataToIDEsAssn(crtListHandle, event, "crt");
   
-  std::vector<std::string> tStripName;
-  std::vector<unsigned> tChannel, tPulseT0, tPulseT1, tPulseADC;
-  std::string tTaggerName;
+  std::vector<std::string> *tStripName = 0;
+  std::vector<unsigned> *tChannel = 0, *tPulseT0 = 0, *tPulseT1 = 0, *tPulseADC = 0;
+  double tPE1, tPE2;
+  std::string *tTaggerName;
+  std::vector<double> *tStripTrueMin = 0, *tStripTrueMax = 0;
   unsigned tPlane;
   double tHitT0, tHitX, tHitXErr, tHitPEs;
-  std::vector<double> tLimits;
+  std::vector<double> *tLimits = 0;
   unsigned nIDEs;
-  std::vector<double> tEntryX, tEntryY, tEntryZ, tExitX, tExitY, tExitZ;
+  std::vector<double> *tEntryX = 0, *tEntryY = 0, *tEntryZ = 0, *tExitX = 0, *tExitY = 0, *tExitZ = 0;
 
-  fHitTree->Branch("StripName",&tStripName);
-  fHitTree->Branch("Channel",&tChannel);
-  fHitTree->Branch("PulseT0",&tPulseT0);
-  fHitTree->Branch("PulseT1",&tPulseT1);
-  fHitTree->Branch("PulseADC",&tPulseADC);
-  fHitTree->Branch("TaggerName",&tTaggerName);
-  fHitTree->Branch("Plane",&tPlane);
-  fHitTree->Branch("HitT0",&tHitT0);
-  fHitTree->Branch("HitX",&tHitX);
-  fHitTree->Branch("HitXErr",&tHitXErr);
-  fHitTree->Branch("HitPEs",&tHitPEs);
-  fHitTree->Branch("Limits",&tLimits);
-  fHitTree->Branch("nIDEs",&nIDEs);
-  fHitTree->Branch("EntryX",&tEntryX);
-  fHitTree->Branch("EntryY",&tEntryY);
-  fHitTree->Branch("EntryZ",&tEntryZ);
-  fHitTree->Branch("ExitX",&tExitX);
-  fHitTree->Branch("ExitY",&tExitY);
-  fHitTree->Branch("ExitZ",&tExitZ);
+  fHitTree->SetBranchAddress("StripName",&tStripName);
+  fHitTree->SetBranchAddress("Channel",&tChannel);
+  fHitTree->SetBranchAddress("PulseT0",&tPulseT0);
+  fHitTree->SetBranchAddress("PulseT1",&tPulseT1);
+  fHitTree->SetBranchAddress("PulseADC",&tPulseADC);
+  fHitTree->SetBranchAddress("PE1",&tPE1);
+  fHitTree->SetBranchAddress("PE2",&tPE2);
+  fHitTree->SetBranchAddress("StripTrueMin",&tStripTrueMin);
+  fHitTree->SetBranchAddress("StripTrueMax",&tStripTrueMax);
+  fHitTree->SetBranchAddress("TaggerName",&tTaggerName);
+  fHitTree->SetBranchAddress("Plane",&tPlane);
+  fHitTree->SetBranchAddress("HitT0",&tHitT0);
+  fHitTree->SetBranchAddress("HitX",&tHitX);
+  fHitTree->SetBranchAddress("HitXErr",&tHitXErr);
+  fHitTree->SetBranchAddress("HitPEs",&tHitPEs);
+  fHitTree->SetBranchAddress("Limits",&tLimits);
+  fHitTree->SetBranchAddress("nIDEs",&nIDEs);
+  fHitTree->SetBranchAddress("EntryX",&tEntryX);
+  fHitTree->SetBranchAddress("EntryY",&tEntryY);
+  fHitTree->SetBranchAddress("EntryZ",&tEntryZ);
+  fHitTree->SetBranchAddress("ExitX",&tExitX);
+  fHitTree->SetBranchAddress("ExitY",&tExitY);
+  fHitTree->SetBranchAddress("ExitZ",&tExitZ);
   
   for (size_t i = 0; i < crtList.size(); i+=2){
 
@@ -84,41 +90,47 @@ std::map<std::pair<std::string, unsigned>, std::vector<CRTStrip>> CRTHitRecoAlg:
       if(!(t1 >= -driftTimeMuS && t1 <= readoutWindowMuS)) continue;
     }
 
-    tStripName.clear(); tChannel.clear(); tPulseT0.clear(); tPulseT1.clear(); tPulseADC.clear();
-    tTaggerName = ""; tPlane = 99999; tHitT0 = -99999.; tHitX = -99999.; tHitXErr = -99999.; tHitPEs = -99999.;
-    tLimits.clear(); nIDEs = 99999; tEntryX.clear(); tEntryY.clear(); tEntryZ.clear(); tExitX.clear(); tExitY.clear(); tExitZ.clear();
+    tStripName->clear(); tChannel->clear(); tPulseT0->clear(); tPulseT1->clear(); tPulseADC->clear(); tStripTrueMin->clear(); tStripTrueMax->clear();
+    tTaggerName = new std::string(""); tPlane = 99999; tHitT0 = -99999.; tHitX = -99999.; tHitXErr = -99999.; tHitPEs = -99999.;
+    tPE1 = -99999; tPE2 = -99999;
+    tLimits->clear(); nIDEs = 99999; tEntryX->clear(); tEntryY->clear(); tEntryZ->clear(); tExitX->clear(); tExitY->clear(); tExitZ->clear();
 
     CRTStrip strip = CreateCRTStrip(crtList[i], crtList[i+1], i);
 
-    tStripName.push_back(fCrtGeo.ChannelToStripName(crtList[i]->Channel()));
-    tStripName.push_back(fCrtGeo.ChannelToStripName(crtList[i+1]->Channel()));
-    tChannel.push_back(crtList[i]->Channel());
-    tChannel.push_back(crtList[i+1]->Channel());
-    tPulseT0.push_back(crtList[i]->T0());
-    tPulseT0.push_back(crtList[i+1]->T0());
-    tPulseT1.push_back(crtList[i]->T1());
-    tPulseT1.push_back(crtList[i+1]->T1());
-    tPulseADC.push_back(crtList[i]->ADC());
-    tPulseADC.push_back(crtList[i+1]->ADC());
-
-    tTaggerName = strip.tagger.first;
+    tStripName->push_back(fCrtGeo.ChannelToStripName(crtList[i]->Channel()));
+    tStripName->push_back(fCrtGeo.ChannelToStripName(crtList[i+1]->Channel()));
+    tChannel->push_back(crtList[i]->Channel());
+    tChannel->push_back(crtList[i+1]->Channel());
+    tPulseT0->push_back(crtList[i]->T0());
+    tPulseT0->push_back(crtList[i+1]->T0());
+    tPulseT1->push_back(crtList[i]->T1());
+    tPulseT1->push_back(crtList[i+1]->T1());
+    tPulseADC->push_back(crtList[i]->ADC());
+    tPulseADC->push_back(crtList[i+1]->ADC());
+    tPE1 = ((double)crtList[i]->ADC() - fQPed)/fQSlope;
+    tPE2 = ((double)crtList[i+1]->ADC() - fQPed)/fQSlope;
+    
+    sbnd::CRTStripGeo stripGeo = fCrtGeo.GetStrip(tStripName->at(0));
+    tStripTrueMin = new std::vector<double>({stripGeo.minX, stripGeo.minY, stripGeo.minZ});
+    tStripTrueMax = new std::vector<double>({stripGeo.maxX, stripGeo.maxY, stripGeo.maxZ});
+    tTaggerName = new std::string(strip.tagger.first);
     tPlane = strip.tagger.second;
     tHitT0 = strip.t0;
     tHitX = strip.x;
     tHitXErr = strip.ex;
     tHitPEs = strip.pes;
 
-    tLimits = fCrtGeo.StripLimitsWithChargeSharing(tStripName.at(0), strip.x, strip.ex);
+    tLimits = new std::vector<double>(fCrtGeo.StripLimitsWithChargeSharing(tStripName->at(0), strip.x, strip.ex));
 
     std::vector<art::Ptr<sim::AuxDetIDE> > ides = dataToIDEsAssn.at(crtList[i].key());
     nIDEs = ides.size();
     for (auto ide : ides) {
-      tEntryX.push_back(ide->entryX);
-      tEntryY.push_back(ide->entryY);
-      tEntryZ.push_back(ide->entryZ);
-      tExitX.push_back(ide->exitX);
-      tExitY.push_back(ide->exitY);
-      tExitZ.push_back(ide->exitZ);
+      tEntryX->push_back(ide->entryX);
+      tEntryY->push_back(ide->entryY);
+      tEntryZ->push_back(ide->entryZ);
+      tExitX->push_back(ide->exitX);
+      tExitY->push_back(ide->exitY);
+      tExitZ->push_back(ide->exitZ);
     }
     taggerStrips[strip.tagger].push_back(strip);
     fHitTree->Fill();
