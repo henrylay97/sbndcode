@@ -192,8 +192,6 @@ std::pair<double, double> CRTHitRecoAlg::DistanceBetweenSipms(art::Ptr<sbnd::crt
     ex = 2.906 - 0.274*x + 0.0248*x*x;
   else if(width == 5.95)
     ex = 1.427 - 0.227*x + 0.0383*x*x;
-  else
-    std::cout << "Width does not fit standard profile, W = " << width << std::endl;
 
   return std::make_pair(x, ex);
 
