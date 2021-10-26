@@ -54,7 +54,8 @@ std::map<std::pair<std::string, unsigned>, std::vector<CRTStrip>> CRTHitRecoAlg:
   double tHitT0, tHitX, tHitXErr, tHitPEs;
   std::vector<double> *tLimits = 0;
   unsigned nIDEs;
-  std::vector<double> *tEntryX = 0, *tEntryY = 0, *tEntryZ = 0, *tExitX = 0, *tExitY = 0, *tExitZ = 0;
+  std::vector<double> *tEntryX = 0, *tEntryY = 0, *tEntryZ = 0, *tEntryT = 0, 
+    *tExitX = 0, *tExitY = 0, *tExitZ = 0, *tExitT = 0;
 
   fHitTree->SetBranchAddress("StripName",&tStripName);
   fHitTree->SetBranchAddress("Channel",&tChannel);
@@ -76,9 +77,11 @@ std::map<std::pair<std::string, unsigned>, std::vector<CRTStrip>> CRTHitRecoAlg:
   fHitTree->SetBranchAddress("EntryX",&tEntryX);
   fHitTree->SetBranchAddress("EntryY",&tEntryY);
   fHitTree->SetBranchAddress("EntryZ",&tEntryZ);
+  fHitTree->SetBranchAddress("EntryT",&tEntryT);
   fHitTree->SetBranchAddress("ExitX",&tExitX);
   fHitTree->SetBranchAddress("ExitY",&tExitY);
   fHitTree->SetBranchAddress("ExitZ",&tExitZ);
+  fHitTree->SetBranchAddress("ExitT",&tExitT);
   
   for (size_t i = 0; i < crtList.size(); i+=2){
 
@@ -93,7 +96,7 @@ std::map<std::pair<std::string, unsigned>, std::vector<CRTStrip>> CRTHitRecoAlg:
     tStripName->clear(); tChannel->clear(); tPulseT0->clear(); tPulseT1->clear(); tPulseADC->clear(); tStripTrueMin->clear(); tStripTrueMax->clear();
     tTaggerName = new std::string(""); tPlane = 99999; tHitT0 = -99999.; tHitX = -99999.; tHitXErr = -99999.; tHitPEs = -99999.;
     tPE1 = -99999; tPE2 = -99999;
-    tLimits->clear(); nIDEs = 99999; tEntryX->clear(); tEntryY->clear(); tEntryZ->clear(); tExitX->clear(); tExitY->clear(); tExitZ->clear();
+    tLimits->clear(); nIDEs = 99999; tEntryX->clear(); tEntryY->clear(); tEntryZ->clear(); tEntryT->clear(); tExitX->clear(); tExitY->clear(); tExitZ->clear(); tExitT->clear();
 
     CRTStrip strip = CreateCRTStrip(crtList[i], crtList[i+1], i);
 
@@ -128,9 +131,11 @@ std::map<std::pair<std::string, unsigned>, std::vector<CRTStrip>> CRTHitRecoAlg:
       tEntryX->push_back(ide->entryX);
       tEntryY->push_back(ide->entryY);
       tEntryZ->push_back(ide->entryZ);
+      tEntryT->push_back(ide->entryT);
       tExitX->push_back(ide->exitX);
       tExitY->push_back(ide->exitY);
       tExitZ->push_back(ide->exitZ);
+      tExitT->push_back(ide->exitT);
     }
     taggerStrips[strip.tagger].push_back(strip);
     fHitTree->Fill();

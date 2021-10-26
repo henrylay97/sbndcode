@@ -140,7 +140,7 @@ namespace sbnd {
     double tHitT0, tHitX, tHitXErr, tHitPEs;
     std::vector<double> tLimits;
     unsigned nIDEs;
-    std::vector<double> tEntryX, tEntryY, tEntryZ, tExitX, tExitY, tExitZ;
+    std::vector<double> tEntryX, tEntryY, tEntryZ, tEntryT, tExitX, tExitY, tExitZ, tExitT;
 
     fHitTree->Branch("StripName",&tStripName);
     fHitTree->Branch("Channel",&tChannel);
@@ -162,9 +162,11 @@ namespace sbnd {
     fHitTree->Branch("EntryX",&tEntryX);
     fHitTree->Branch("EntryY",&tEntryY);
     fHitTree->Branch("EntryZ",&tEntryZ);
+    fHitTree->Branch("EntryT",&tEntryT);
     fHitTree->Branch("ExitX",&tExitX);
     fHitTree->Branch("ExitY",&tExitY);
     fHitTree->Branch("ExitZ",&tExitZ);
+    fHitTree->Branch("ExitT",&tExitT);
 
   } // CRTSimHitProducer::beginJob()
 
