@@ -92,6 +92,12 @@ namespace sbnd {
 
     void reconfigure(fhicl::ParameterSet const & p);
 
+    void FillThreeDTree(const art::Event &event, const std::vector<std::pair<sbn::crt::CRTHit, std::vector<int>>> &crtHitPairs, 
+			const std::vector<art::Ptr<sbnd::crt::CRTData>> &crtList, const art::Handle< std::vector<sbnd::crt::CRTData>> &crtListHandle);
+    
+    void ResetData();
+
+
   private:
 
     // Params from fcl file.......
@@ -99,7 +105,12 @@ namespace sbnd {
    
     CRTHitRecoAlg hitAlg;
 
-    TTree *fHitTree;
+    TTree *fHitTree, *fThreeDHitTree;
+
+    float tPEsHit, tPosX, tPosY, tPosZ, tErrX, tErrY, tErrZ;
+    unsigned tTime, nIDEs;
+    std::string tTagger;
+    std::vector<double> tEntryX, tEntryY, tEntryZ, tEntryT, tExitX, tExitY, tExitZ, tExitT;
 
   }; // class CRTSimHitProducer
 
@@ -117,6 +128,7 @@ namespace sbnd {
 
     art::ServiceHandle<art::TFileService> tfs;
     fHitTree = tfs->make<TTree>("HitTree","CRT Strip Hit Tree");
+    fThreeDHitTree = tfs->make<TTree>("ThreeDHitTree","ThreeD CRT Hit Tree");
 
   } // CRTSimHitProducer()
 
@@ -139,8 +151,8 @@ namespace sbnd {
     unsigned tPlane;
     double tHitT0, tHitX, tHitXErr, tHitPEs;
     std::vector<double> tLimits;
-    unsigned nIDEs;
-    std::vector<double> tEntryX, tEntryY, tEntryZ, tEntryT, tExitX, tExitY, tExitZ, tExitT;
+    unsigned nOneDIDEs;
+    std::vector<double> tOneDEntryX, tOneDEntryY, tOneDEntryZ, tOneDEntryT, tOneDExitX, tOneDExitY, tOneDExitZ, tOneDExitT;
 
     fHitTree->Branch("StripName",&tStripName);
     fHitTree->Branch("Channel",&tChannel);
@@ -158,15 +170,34 @@ namespace sbnd {
     fHitTree->Branch("HitXErr",&tHitXErr);
     fHitTree->Branch("HitPEs",&tHitPEs);
     fHitTree->Branch("Limits",&tLimits);
-    fHitTree->Branch("nIDEs",&nIDEs);
-    fHitTree->Branch("EntryX",&tEntryX);
-    fHitTree->Branch("EntryY",&tEntryY);
-    fHitTree->Branch("EntryZ",&tEntryZ);
-    fHitTree->Branch("EntryT",&tEntryT);
-    fHitTree->Branch("ExitX",&tExitX);
-    fHitTree->Branch("ExitY",&tExitY);
-    fHitTree->Branch("ExitZ",&tExitZ);
-    fHitTree->Branch("ExitT",&tExitT);
+    fHitTree->Branch("nIDEs",&nOneDIDEs);
+    fHitTree->Branch("EntryX",&tOneDEntryX);
+    fHitTree->Branch("EntryY",&tOneDEntryY);
+    fHitTree->Branch("EntryZ",&tOneDEntryZ);
+    fHitTree->Branch("EntryT",&tOneDEntryT);
+    fHitTree->Branch("ExitX",&tOneDExitX);
+    fHitTree->Branch("ExitY",&tOneDExitY);
+    fHitTree->Branch("ExitZ",&tOneDExitZ);
+    fHitTree->Branch("ExitT",&tOneDExitT);
+
+    fThreeDHitTree->Branch("PEsHit",&tPEsHit);
+    fThreeDHitTree->Branch("PosX",&tPosX);
+    fThreeDHitTree->Branch("PosY",&tPosY);
+    fThreeDHitTree->Branch("PosZ",&tPosZ);
+    fThreeDHitTree->Branch("ErrX",&tErrX);
+    fThreeDHitTree->Branch("ErrY",&tErrY);
+    fThreeDHitTree->Branch("ErrZ",&tErrZ);
+    fThreeDHitTree->Branch("Time",&tTime);
+    fThreeDHitTree->Branch("tTagger",&tTagger);
+    fThreeDHitTree->Branch("nIDEs",&nIDEs);
+    fThreeDHitTree->Branch("EntryX",&tEntryX);
+    fThreeDHitTree->Branch("EntryY",&tEntryY);
+    fThreeDHitTree->Branch("EntryZ",&tEntryZ);
+    fThreeDHitTree->Branch("EntryT",&tEntryT);
+    fThreeDHitTree->Branch("ExitX",&tExitX);
+    fThreeDHitTree->Branch("ExitY",&tExitY);
+    fThreeDHitTree->Branch("ExitZ",&tExitZ);
+    fThreeDHitTree->Branch("ExitT",&tExitT);
 
   } // CRTSimHitProducer::beginJob()
 
@@ -212,9 +243,60 @@ namespace sbnd {
 
     mf::LogInfo("CRTSimHitProducer")
       <<"Number of CRT hits produced = "<<nHits;
+
+    FillThreeDTree(event, crtHitPairs, crtList, crtListHandle);
     
   } // CRTSimHitProducer::produce()
 
+  void CRTSimHitProducer::FillThreeDTree(const art::Event &event, const std::vector<std::pair<sbn::crt::CRTHit, std::vector<int>>> &crtHitPairs, 
+					 const std::vector<art::Ptr<sbnd::crt::CRTData>> &crtList, const art::Handle< std::vector<sbnd::crt::CRTData>> &crtListHandle)
+  {
+    for(auto const &[crtHit, dataIDs] : crtHitPairs)
+      {
+	ResetData();
+	tPEsHit = crtHit.peshit;
+	tPosX = crtHit.x_pos;
+	tPosY = crtHit.y_pos;
+	tPosZ = crtHit.z_pos;
+	tErrX = crtHit.x_err;
+	tErrY = crtHit.y_err;
+	tErrZ = crtHit.z_err;
+	tTime = crtHit.ts0_ns;
+	tTagger = crtHit.tagger;
+
+	art::FindManyP<sim::AuxDetIDE> dataToIDEsAssn(crtListHandle, event, "crt");
+	
+	for(auto const &dataID : dataIDs)
+	  {
+	    std::vector<art::Ptr<sim::AuxDetIDE>> ides = dataToIDEsAssn.at(crtList[dataID].key());
+
+	    for(auto const &ide : ides)
+	      {
+		++nIDEs;
+		tEntryX.push_back(ide->entryX);
+		tEntryY.push_back(ide->entryY);
+		tEntryZ.push_back(ide->entryZ);
+		tEntryT.push_back(ide->entryT);
+		tExitX.push_back(ide->exitX);
+		tExitY.push_back(ide->exitY);
+		tExitZ.push_back(ide->exitZ);
+		tExitT.push_back(ide->exitT);
+	      }
+	  }
+	fThreeDHitTree->Fill();
+      }
+  }
+
+  void CRTSimHitProducer::ResetData()
+  {
+    tPEsHit = -999999.f; tPosX = -999999.f; tPosY = -999999.f; tPosZ = -999999.f;
+    tErrX = -999999.f; tErrY = -999999.f; tErrZ = -999999.f;
+    tTime = 999999;
+    tTagger = "";
+    nIDEs = 0;
+    tEntryX.clear(); tEntryY.clear(); tEntryZ.clear(); tEntryT.clear();
+    tExitX.clear(); tExitY.clear(); tExitZ.clear(); tExitT.clear();
+  }
 
   void CRTSimHitProducer::endJob()
   {
