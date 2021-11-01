@@ -131,7 +131,14 @@ namespace sbnd{
 
     std::pair<double, double> DistanceBetweenSipms(art::Ptr<sbnd::crt::CRTData> sipm1, art::Ptr<sbnd::crt::CRTData> sipm2);
     
-    std::vector<std::pair<sbn::crt::CRTHit, std::vector<int>>> CreateCRTHits(std::map<std::pair<std::string, unsigned>, std::vector<CRTStrip>> taggerStrips);
+    std::vector<std::pair<sbn::crt::CRTHit, std::vector<int>>> CreateCRTHits(std::map<std::pair<std::string, unsigned>, std::vector<CRTStrip>> taggerStrips,
+									     const std::vector<art::Ptr<sbnd::crt::CRTData>> &crtList,
+									     const art::Handle< std::vector<sbnd::crt::CRTData>> &crtListHandle,
+									     const art::Event &event, TTree *fThreeDHitTree);
+
+    void FillThreeDTree(const art::Event &event, const sbn::crt::CRTHit &crtHit, const std::vector<int> dataIDs,
+			const std::vector<art::Ptr<sbnd::crt::CRTData>> &crtList, const art::Handle< std::vector<sbnd::crt::CRTData>> &crtListHandle, TTree *fThreeDHitTree,
+			double &t0_1, double &t0_2);
 
     // Function to calculate the strip position limits in real space from channel
     std::vector<double> ChannelToLimits(CRTStrip strip);

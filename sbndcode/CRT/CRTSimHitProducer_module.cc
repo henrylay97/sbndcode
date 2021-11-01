@@ -92,12 +92,6 @@ namespace sbnd {
 
     void reconfigure(fhicl::ParameterSet const & p);
 
-    void FillThreeDTree(const art::Event &event, const std::vector<std::pair<sbn::crt::CRTHit, std::vector<int>>> &crtHitPairs, 
-			const std::vector<art::Ptr<sbnd::crt::CRTData>> &crtList, const art::Handle< std::vector<sbnd::crt::CRTData>> &crtListHandle);
-    
-    void ResetData();
-
-
   private:
 
     // Params from fcl file.......
@@ -106,11 +100,6 @@ namespace sbnd {
     CRTHitRecoAlg hitAlg;
 
     TTree *fHitTree, *fThreeDHitTree;
-
-    float tPEsHit, tPosX, tPosY, tPosZ, tErrX, tErrY, tErrZ;
-    unsigned tTime, nIDEs;
-    std::string tTagger;
-    std::vector<double> tEntryX, tEntryY, tEntryZ, tEntryT, tExitX, tExitY, tExitZ, tExitT;
 
   }; // class CRTSimHitProducer
 
@@ -180,6 +169,12 @@ namespace sbnd {
     fHitTree->Branch("ExitZ",&tOneDExitZ);
     fHitTree->Branch("ExitT",&tOneDExitT);
 
+    float tPEsHit, tPosX, tPosY, tPosZ, tErrX, tErrY, tErrZ;
+    unsigned tTime, nIDEs;
+    std::string tTagger;
+    std::vector<double> tEntryX, tEntryY, tEntryZ, tEntryT, tExitX, tExitY, tExitZ, tExitT;
+    double tTimeHit0, tTimeHit1, tDistHit0, tDistHit1;
+
     fThreeDHitTree->Branch("PEsHit",&tPEsHit);
     fThreeDHitTree->Branch("PosX",&tPosX);
     fThreeDHitTree->Branch("PosY",&tPosY);
@@ -198,6 +193,10 @@ namespace sbnd {
     fThreeDHitTree->Branch("ExitY",&tExitY);
     fThreeDHitTree->Branch("ExitZ",&tExitZ);
     fThreeDHitTree->Branch("ExitT",&tExitT);
+    fThreeDHitTree->Branch("TimeHit0",&tTimeHit0);
+    fThreeDHitTree->Branch("TimeHit1",&tTimeHit1);
+    fThreeDHitTree->Branch("DistHit0",&tDistHit0);
+    fThreeDHitTree->Branch("DistHit1",&tDistHit1);
 
   } // CRTSimHitProducer::beginJob()
 
@@ -226,7 +225,7 @@ namespace sbnd {
     mf::LogInfo("CRTSimHitProducer")
       <<"Number of SiPM hits = "<<crtList.size();
 
-    std::vector<std::pair<sbn::crt::CRTHit, std::vector<int>>> crtHitPairs = hitAlg.CreateCRTHits(taggerStrips);
+    std::vector<std::pair<sbn::crt::CRTHit, std::vector<int>>> crtHitPairs = hitAlg.CreateCRTHits(taggerStrips, crtList, crtListHandle, event, fThreeDHitTree);
 
     for(auto const& crtHitPair : crtHitPairs){
       CRTHitcol->push_back(crtHitPair.first);
@@ -243,60 +242,8 @@ namespace sbnd {
 
     mf::LogInfo("CRTSimHitProducer")
       <<"Number of CRT hits produced = "<<nHits;
-
-    FillThreeDTree(event, crtHitPairs, crtList, crtListHandle);
     
   } // CRTSimHitProducer::produce()
-
-  void CRTSimHitProducer::FillThreeDTree(const art::Event &event, const std::vector<std::pair<sbn::crt::CRTHit, std::vector<int>>> &crtHitPairs, 
-					 const std::vector<art::Ptr<sbnd::crt::CRTData>> &crtList, const art::Handle< std::vector<sbnd::crt::CRTData>> &crtListHandle)
-  {
-    for(auto const &[crtHit, dataIDs] : crtHitPairs)
-      {
-	ResetData();
-	tPEsHit = crtHit.peshit;
-	tPosX = crtHit.x_pos;
-	tPosY = crtHit.y_pos;
-	tPosZ = crtHit.z_pos;
-	tErrX = crtHit.x_err;
-	tErrY = crtHit.y_err;
-	tErrZ = crtHit.z_err;
-	tTime = crtHit.ts0_ns;
-	tTagger = crtHit.tagger;
-
-	art::FindManyP<sim::AuxDetIDE> dataToIDEsAssn(crtListHandle, event, "crt");
-	
-	for(auto const &dataID : dataIDs)
-	  {
-	    std::vector<art::Ptr<sim::AuxDetIDE>> ides = dataToIDEsAssn.at(crtList[dataID].key());
-
-	    for(auto const &ide : ides)
-	      {
-		++nIDEs;
-		tEntryX.push_back(ide->entryX);
-		tEntryY.push_back(ide->entryY);
-		tEntryZ.push_back(ide->entryZ);
-		tEntryT.push_back(ide->entryT);
-		tExitX.push_back(ide->exitX);
-		tExitY.push_back(ide->exitY);
-		tExitZ.push_back(ide->exitZ);
-		tExitT.push_back(ide->exitT);
-	      }
-	  }
-	fThreeDHitTree->Fill();
-      }
-  }
-
-  void CRTSimHitProducer::ResetData()
-  {
-    tPEsHit = -999999.f; tPosX = -999999.f; tPosY = -999999.f; tPosZ = -999999.f;
-    tErrX = -999999.f; tErrY = -999999.f; tErrZ = -999999.f;
-    tTime = 999999;
-    tTagger = "";
-    nIDEs = 0;
-    tEntryX.clear(); tEntryY.clear(); tEntryZ.clear(); tEntryT.clear();
-    tExitX.clear(); tExitY.clear(); tExitZ.clear(); tExitT.clear();
-  }
 
   void CRTSimHitProducer::endJob()
   {

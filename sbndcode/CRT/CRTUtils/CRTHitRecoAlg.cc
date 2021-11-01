@@ -203,7 +203,12 @@ std::pair<double, double> CRTHitRecoAlg::DistanceBetweenSipms(art::Ptr<sbnd::crt
 }
 
 
-std::vector<std::pair<sbn::crt::CRTHit, std::vector<int>>> CRTHitRecoAlg::CreateCRTHits(std::map<std::pair<std::string, unsigned>, std::vector<CRTStrip>> taggerStrips){
+std::vector<std::pair<sbn::crt::CRTHit, std::vector<int>>> CRTHitRecoAlg::CreateCRTHits(std::map<std::pair<std::string, unsigned>, std::vector<CRTStrip>> taggerStrips,
+											const std::vector<art::Ptr<sbnd::crt::CRTData>> &crtList, 
+											const art::Handle< std::vector<sbnd::crt::CRTData>> &crtListHandle,
+											const art::Event &event,
+											TTree *fThreeDHitTree)
+{
 
   std::vector<std::pair<sbn::crt::CRTHit, std::vector<int>>> returnHits;
 
@@ -273,7 +278,9 @@ std::vector<std::pair<sbn::crt::CRTHit, std::vector<int>>> CRTHitRecoAlg::Create
             dataIds.push_back(taggerStrips[otherPlane][hit_j].dataID);
             dataIds.push_back(taggerStrips[otherPlane][hit_j].dataID+1);
             returnHits.push_back(std::make_pair(crtHit, dataIds));
-          }
+
+	    FillThreeDTree(event, crtHit, dataIds, crtList, crtListHandle, fThreeDHitTree, t0_1, t0_2);
+	   }
 
         }
 
@@ -297,6 +304,8 @@ std::vector<std::pair<sbn::crt::CRTHit, std::vector<int>>> CRTHitRecoAlg::Create
         dataIds.push_back(tagStrip.second[hit_i].dataID);
         dataIds.push_back(tagStrip.second[hit_i].dataID+1);
         returnHits.push_back(std::make_pair(crtHit, dataIds));
+	
+	FillThreeDTree(event, crtHit, dataIds, crtList, crtListHandle, fThreeDHitTree, time, time);
       }
 
     }
@@ -324,16 +333,97 @@ std::vector<std::pair<sbn::crt::CRTHit, std::vector<int>>> CRTHitRecoAlg::Create
         dataIds.push_back(taggerStrips[otherPlane][hit_j].dataID);
         dataIds.push_back(taggerStrips[otherPlane][hit_j].dataID+1);
         returnHits.push_back(std::make_pair(crtHit, dataIds));
+
+	FillThreeDTree(event, crtHit, dataIds, crtList, crtListHandle, fThreeDHitTree, time, time);
       }
 
-    }
-
+    }    
   }
 
   return returnHits;
 
 }
 
+void CRTHitRecoAlg::FillThreeDTree(const art::Event &event, const sbn::crt::CRTHit &crtHit, const std::vector<int> dataIDs,
+				   const std::vector<art::Ptr<sbnd::crt::CRTData>> &crtList, const art::Handle< std::vector<sbnd::crt::CRTData>> &crtListHandle, 
+				   TTree *fThreeDHitTree, double &t0_1, double &t0_2)
+  {
+    float tPEsHit = -99999.f, tPosX = -99999.f, tPosY = -99999.f, tPosZ = -99999.f, tErrX = -99999.f, tErrY = -99999.f, tErrZ = -99999.f;
+    unsigned tTime = 99999, nIDEs = 0;
+    std::string *tTagger = 0;
+    std::vector<double> *tEntryX = 0, *tEntryY = 0, *tEntryZ = 0, *tEntryT = 0, 
+      *tExitX = 0, *tExitY = 0, *tExitZ = 0, *tExitT = 0;
+    double tTimeHit0 = -99999.f, tTimeHit1 = -99999.f, tDistHit0 = -99999.f, tDistHit1 = -99999.f;
+
+    fThreeDHitTree->SetBranchAddress("PEsHit",&tPEsHit);
+    fThreeDHitTree->SetBranchAddress("PosX",&tPosX);
+    fThreeDHitTree->SetBranchAddress("PosY",&tPosY);
+    fThreeDHitTree->SetBranchAddress("PosZ",&tPosZ);
+    fThreeDHitTree->SetBranchAddress("ErrX",&tErrX);
+    fThreeDHitTree->SetBranchAddress("ErrY",&tErrY);
+    fThreeDHitTree->SetBranchAddress("ErrZ",&tErrZ);
+    fThreeDHitTree->SetBranchAddress("Time",&tTime);
+    fThreeDHitTree->SetBranchAddress("tTagger",&tTagger);
+    fThreeDHitTree->SetBranchAddress("nIDEs",&nIDEs);
+    fThreeDHitTree->SetBranchAddress("EntryX",&tEntryX);
+    fThreeDHitTree->SetBranchAddress("EntryY",&tEntryY);
+    fThreeDHitTree->SetBranchAddress("EntryZ",&tEntryZ);
+    fThreeDHitTree->SetBranchAddress("EntryT",&tEntryT);
+    fThreeDHitTree->SetBranchAddress("ExitX",&tExitX);
+    fThreeDHitTree->SetBranchAddress("ExitY",&tExitY);
+    fThreeDHitTree->SetBranchAddress("ExitZ",&tExitZ);
+    fThreeDHitTree->SetBranchAddress("ExitT",&tExitT);
+    fThreeDHitTree->SetBranchAddress("TimeHit0",&tTimeHit0);
+    fThreeDHitTree->SetBranchAddress("TimeHit1",&tTimeHit1);
+    fThreeDHitTree->SetBranchAddress("DistHit0",&tDistHit0);
+    fThreeDHitTree->SetBranchAddress("DistHit1",&tDistHit1);
+
+    tPEsHit = crtHit.peshit;
+    tPosX = crtHit.x_pos;
+    tPosY = crtHit.y_pos;
+    tPosZ = crtHit.z_pos;
+    tErrX = crtHit.x_err;
+    tErrY = crtHit.y_err;
+    tErrZ = crtHit.z_err;
+    tTime = crtHit.ts0_ns;
+    tTagger = new std::string(crtHit.tagger);
+
+    if(dataIDs.size() == 4)
+      {
+	std::string name0 = fCrtGeo.ChannelToStripName(crtList[dataIDs[0]]->Channel());
+	std::string name1 = fCrtGeo.ChannelToStripName(crtList[dataIDs[3]]->Channel());
+	tDistHit0 = fCrtGeo.DistanceDownStrip({tPosX, tPosY, tPosZ}, name0);
+	tDistHit1 = fCrtGeo.DistanceDownStrip({tPosX, tPosY, tPosZ}, name1);
+	tTimeHit0 = t0_1;
+	tTimeHit1 = t0_2;
+      }
+    else if(dataIDs.size() == 2)
+      {
+	std::string name0 = fCrtGeo.ChannelToStripName(crtList[dataIDs[0]]->Channel());
+	tDistHit0 = fCrtGeo.DistanceDownStrip({tPosX, tPosY, tPosZ}, name0);
+	tTimeHit0 = t0_1;
+      }
+
+    art::FindManyP<sim::AuxDetIDE> dataToIDEsAssn(crtListHandle, event, "crt");
+    for(auto const &dataID : dataIDs)
+      {
+	std::vector<art::Ptr<sim::AuxDetIDE>> ides = dataToIDEsAssn.at(crtList[dataID].key());
+
+	for(auto const &ide : ides)
+	  {
+	    ++nIDEs;
+	    tEntryX->push_back(ide->entryX);
+	    tEntryY->push_back(ide->entryY);
+	    tEntryZ->push_back(ide->entryZ);
+	    tEntryT->push_back(ide->entryT);
+	    tExitX->push_back(ide->exitX);
+	    tExitY->push_back(ide->exitY);
+	    tExitZ->push_back(ide->exitZ);
+	    tExitT->push_back(ide->exitT);
+	  }
+      }
+    fThreeDHitTree->Fill();
+  }
 
 // Function to calculate the strip position limits in real space from channel
 std::vector<double> CRTHitRecoAlg::ChannelToLimits(CRTStrip stripHit){
