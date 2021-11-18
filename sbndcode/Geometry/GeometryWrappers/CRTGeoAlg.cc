@@ -467,13 +467,11 @@ std::vector<double> CRTGeoAlg::StripLimitsWithChargeSharing(std::string stripNam
 
   // Get the maximum strip limits in world coordinates
   double l1[3] = {-halfWidth + x + ex, halfHeight, halfLength};
-  if(l1[0] > halfWidth) l1[0] = halfWidth;
   double w1[3];
   sensitiveGeo.LocalToWorld(l1, w1);
 
   // Get the minimum strip limits in world coordinates
   double l2[3] = {-halfWidth + x - ex, -halfHeight, -halfLength};
-  if(l2[0] < -halfWidth) l2[0] = -halfWidth;
   double w2[3];
   sensitiveGeo.LocalToWorld(l2, w2);
 
