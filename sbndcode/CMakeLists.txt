@@ -23,6 +23,7 @@ add_subdirectory(Analyzer)
 add_subdirectory(RecoEffCI)
 add_subdirectory(VertexEventDisplay)
 add_subdirectory(Commissioning)
+add_subdirectory(Trigger)
 
 # subdirectory for gallery stuff
 add_subdirectory(gallery)
