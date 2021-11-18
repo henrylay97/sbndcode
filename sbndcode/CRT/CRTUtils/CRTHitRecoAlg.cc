@@ -189,14 +189,11 @@ std::pair<double, double> CRTHitRecoAlg::DistanceBetweenSipms(art::Ptr<sbnd::crt
   double npe2 = ((double)sipm2->ADC() - fQPed)/fQSlope;
 
   // Calculate the distance between the SiPMs
-  double x = (width/2.)*tanh(log(1.*npe2/npe1)) + (width/2.);
+  double x = (width/2.)*atan(log(1.*npe2/npe1)) + (width/2.);
 
-  double ex = width;
   // Calculate the error
-  if(width == 11.2)
-    ex = 2.906 - 0.274*x + 0.0248*x*x;
-  else if(width == 5.95)
-    ex = 1.427 - 0.227*x + 0.0383*x*x;
+  double normx = x + 0.344677*x - 1.92045;
+  double ex = 1.92380e+00+1.47186e-02*normx-5.29446e-03*normx*normx;
 
   return std::make_pair(x, ex);
 
