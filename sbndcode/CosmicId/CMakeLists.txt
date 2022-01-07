@@ -2,6 +2,7 @@
 add_subdirectory(Utils)
 add_subdirectory(Algs)
 add_subdirectory(Ana)
+add_subdirectory(Crumbs)
 
 art_make(
           MODULE_LIBRARIES larcorealg_Geometry
