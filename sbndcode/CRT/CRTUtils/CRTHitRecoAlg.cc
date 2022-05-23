@@ -264,6 +264,27 @@ std::vector<std::pair<sbn::crt::CRTHit, std::vector<int>>> CRTHitRecoAlg::Create
                            std::abs((overlap[3] - overlap[2])/2.), 
                            std::abs((overlap[5] - overlap[4])/2.));
 
+	    if(limits1[1] > overlap[0] && limits1[1] < overlap[1] && limits1[2] - limits1[0] < 20)
+	      mean.SetX(limits1[1]);
+
+	    if(limits2[1] > overlap[0] && limits2[1] < overlap[1] && limits2[2] - limits2[0] < 20)
+	      mean.SetX(limits2[1]);
+
+	    if(limits1[4] > overlap[2] && limits1[4] < overlap[3] && limits1[5] - limits1[3] < 20)
+	      mean.SetY(limits1[4]);
+
+	    if(limits2[4] > overlap[2] && limits2[4] < overlap[3] && limits2[5] - limits2[3] < 20)
+	      mean.SetY(limits2[4]);
+
+	    if(limits1[7] > overlap[4] && limits1[7] < overlap[5] && limits1[8] - limits1[6] < 20)
+	      mean.SetZ(limits1[7]);
+
+	    if(limits2[7] > overlap[4] && limits2[7] < overlap[5] && limits2[8] - limits2[6] < 20)
+	      mean.SetZ(limits2[7]);
+
+	    /*	    std::cout << limits1[1] << " " << limits1[4] << " " << limits1[7] << std::endl;
+		    std::cout << limits2[1] << " " << limits2[4] << " " << limits2[7] << std::endl;   */
+
             // Average the time
             double time = (t0_1 + t0_2)/2;
             //double pes = tagStrip.second[hit_i].pes + taggerStrips[otherPlane][hit_j].pes;
@@ -287,12 +308,12 @@ std::vector<std::pair<sbn::crt::CRTHit, std::vector<int>>> CRTHitRecoAlg::Create
       }
       // If module doesn't overlap with a perpendicular one create 1D hits
       else{
-        TVector3 mean((limits1[0] + limits1[1])/2., 
-                      (limits1[2] + limits1[3])/2., 
-                      (limits1[4] + limits1[5])/2.);
-        TVector3 error(std::abs((limits1[1] - limits1[0])/2.), 
-                       std::abs((limits1[3] - limits1[2])/2.), 
-                       std::abs((limits1[5] - limits1[4])/2.));
+        TVector3 mean((limits1[0] + limits1[2])/2., 
+                      (limits1[3] + limits1[5])/2., 
+                      (limits1[6] + limits1[8])/2.);
+        TVector3 error(std::abs((limits1[2] - limits1[0])/2.), 
+                       std::abs((limits1[5] - limits1[3])/2.), 
+                       std::abs((limits1[8] - limits1[6])/2.));
 
         double time = tagStrip.second[hit_i].t0;
         double pes = tagStrip.second[hit_i].pes;
@@ -316,12 +337,12 @@ std::vector<std::pair<sbn::crt::CRTHit, std::vector<int>>> CRTHitRecoAlg::Create
 
       // Check if module overlaps with a perpendicular one
       if(!CheckModuleOverlap(taggerStrips[otherPlane][hit_j].channel)){
-        TVector3 mean((limits1[0] + limits1[1])/2., 
-                      (limits1[2] + limits1[3])/2., 
-                      (limits1[4] + limits1[5])/2.);
-        TVector3 error(std::abs((limits1[1] - limits1[0])/2.), 
-                       std::abs((limits1[3] - limits1[2])/2.), 
-                       std::abs((limits1[5] - limits1[4])/2.));
+        TVector3 mean((limits1[0] + limits1[2])/2., 
+                      (limits1[3] + limits1[5])/2., 
+                      (limits1[6] + limits1[8])/2.);
+        TVector3 error(std::abs((limits1[2] - limits1[0])/2.), 
+                       std::abs((limits1[5] - limits1[3])/2.), 
+                       std::abs((limits1[8] - limits1[6])/2.));
 
         double time = taggerStrips[otherPlane][hit_j].t0;
         double pes = taggerStrips[otherPlane][hit_j].pes;
@@ -439,17 +460,38 @@ std::vector<double> CRTHitRecoAlg::CrtOverlap(std::vector<double> strip1, std::v
 
   // Get the minimum and maximum X, Y, Z coordinates
   double minX = std::max(strip1[0], strip2[0]);
-  double maxX = std::min(strip1[1], strip2[1]);
-  double minY = std::max(strip1[2], strip2[2]);
-  double maxY = std::min(strip1[3], strip2[3]);
-  double minZ = std::max(strip1[4], strip2[4]);
-  double maxZ = std::min(strip1[5], strip2[5]);
+  double maxX = std::min(strip1[2], strip2[2]);
+  double minY = std::max(strip1[3], strip2[3]);
+  double maxY = std::min(strip1[5], strip2[5]);
+  double minZ = std::max(strip1[6], strip2[6]);
+  double maxZ = std::min(strip1[8], strip2[8]);
 
   std::vector<double> null = {-99999, -99999, -99999, -99999, -99999, -99999};
   std::vector<double> overlap = {minX, maxX, minY, maxY, minZ, maxZ};
 
   // If the two strips overlap in 2 dimensions then return the overlap
-  if ((minX<maxX && minY<maxY) || (minX<maxX && minZ<maxZ) || (minY<maxY && minZ<maxZ)) return overlap;
+  if ((minX<maxX && minY<maxY) || (minX<maxX && minZ<maxZ) || (minY<maxY && minZ<maxZ)) {
+    /*
+    std::cout << "===== X =====" << '\n'
+	      << "Min: " << minX << '\n'
+	      << "Max: " << maxX << '\n'
+	      << "#1 : " << strip1[0] << ", " << strip1[1] << ", " << strip1[2] << '\n'
+	      << "#1 : " << strip2[0] << ", " << strip2[1] << ", " << strip2[2] << '\n' << std::endl;
+
+    std::cout << "===== Y =====" << '\n'
+	      << "Min: " << minY << '\n'
+	      << "Max: " << maxY << '\n'
+	      << "#1 : " << strip1[3] << ", " << strip1[4] << ", " << strip1[5] << '\n'
+	      << "#1 : " << strip2[3] << ", " << strip2[4] << ", " << strip2[5] << '\n' << std::endl;
+
+    std::cout << "===== Z =====" << '\n'
+	      << "Min: " << minZ << '\n'
+	      << "Max: " << maxZ << '\n'
+	      << "#1 : " << strip1[6] << ", " << strip1[7] << ", " << strip1[8] << '\n'
+	      << "#1 : " << strip2[6] << ", " << strip2[7] << ", " << strip2[8] << '\n' << std::endl;
+    */
+    return overlap;
+  }
   // Otherwise return a "null" value
   return null;
 

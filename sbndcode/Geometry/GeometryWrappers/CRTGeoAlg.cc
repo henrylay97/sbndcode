@@ -471,16 +471,21 @@ std::vector<double> CRTGeoAlg::StripLimitsWithChargeSharing(std::string stripNam
   double w1[3];
   sensitiveGeo.LocalToWorld(l1, w1);
 
-  // Get the minimum strip limits in world coordinates
-  double l2[3] = {-halfWidth + x - ex, -halfHeight, -halfLength};
-  if(l2[0] < -halfWidth) l2[0] = -halfWidth;
+  // Get the central values in world coordinates
+  double l2[3] = {-halfWidth + x, 0, 0};
   double w2[3];
   sensitiveGeo.LocalToWorld(l2, w2);
 
+  // Get the minimum strip limits in world coordinates
+  double l3[3] = {-halfWidth + x - ex, -halfHeight, -halfLength};
+  if(l3[0] < -halfWidth) l3[0] = -halfWidth;
+  double w3[3];
+  sensitiveGeo.LocalToWorld(l3, w3);
+
   // Use this to get the limits in the two variable directions
-  std::vector<double> limits = {std::min(w1[0],w2[0]), std::max(w1[0],w2[0]),
-                                std::min(w1[1],w2[1]), std::max(w1[1],w2[1]),
-                                std::min(w1[2],w2[2]), std::max(w1[2],w2[2])};
+  std::vector<double> limits = {std::min(w1[0],w3[0]), w2[0], std::max(w1[0],w3[0]),
+                                std::min(w1[1],w3[1]), w2[1], std::max(w1[1],w3[1]),
+                                std::min(w1[2],w3[2]), w2[2], std::max(w1[2],w3[2])};
   return limits;
 }
 
