@@ -1,0 +1,5 @@
+Selection.cxx:11:10: fatal error: ofstream: No such file or directory
+   11 | #include <ofstream>
+      |          ^~~~~~~~~~
+compilation terminated.
+make: *** [Selection.o] Error 1
